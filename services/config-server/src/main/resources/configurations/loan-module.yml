@@ -1,0 +1,3 @@
+application:
+  config:
+    user-module-url: http://localhost:8222/api/v1/users

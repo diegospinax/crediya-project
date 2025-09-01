@@ -1,0 +1,70 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: "loan-module"
+  devtools:
+    add-properties: false
+  h2:
+    console:
+      enabled: true
+      path: "/h2"
+  profiles:
+    include: null
+  webflux:
+    base-path: /api/v1
+adapter:
+  restconsumer:
+    timeout: 5000
+    url: "http://localhost:8080"
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+resilience4j:
+  circuitbreaker:
+    instances:
+      testGet:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
+      testPost:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8080"
+
+adapters:
+  r2dbc:
+    host: localhost
+    port: 5432
+    database: webflux_loan
+    schema: public
+    username: postgres
+    password: 1115
+application:
+  config:
+    user-module-url: http://localhost:8222/api/v1/users
+
+logging:
+  level:
+    org.springframework.r2dbc: "DEBUG"
