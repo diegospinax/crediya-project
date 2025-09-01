@@ -10,7 +10,7 @@ spring:
   r2dbc:
     username: "postgres"
     password: "1115"
-    url: "r2dbc:postgresql://localhost:5432/webflux_auth"
+    url: "r2dbc:postgresql://localhost:5432/webflux_user"
   webflux:
     base-path: /api/v1
 logging:
