@@ -7,6 +7,7 @@ public record User(
         UserId id,
         UserName name,
         UserLastname lastname,
+        UserDocument document,
         UserDateBirth dateBirth,
         UserAddress address,
         UserPhoneNumber phoneNumber,

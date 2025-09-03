@@ -20,7 +20,10 @@ public class RestConsumer implements UserClient {
     public Mono<User> findUserByDocument(LoanUserDocument loanUserDocument) {
         return Mono.defer(() -> client
                 .get()
-                .uri("/document/{document}", loanUserDocument.value)
+                .uri(url -> url
+                        .path("/document")
+                        .queryParam("value", loanUserDocument.value)
+                        .build())
                 .retrieve()
                 .bodyToMono(User.class));
     }

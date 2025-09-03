@@ -3,6 +3,7 @@ package co.pragma.usecase.user;
 import co.pragma.model.role.gateways.RoleRepository;
 import co.pragma.model.user.User;
 import co.pragma.model.user.gateways.UserRepository;
+import co.pragma.model.user.valueObject.UserDocument;
 import co.pragma.model.user.valueObject.UserEmail;
 import co.pragma.model.user.valueObject.UserId;
 import co.pragma.usecase.exception.DataIntegrationValidationException;
@@ -10,7 +11,6 @@ import co.pragma.usecase.user.cases.CreateUserUseCase;
 import co.pragma.usecase.user.cases.DeleteUserUseCase;
 import co.pragma.usecase.user.cases.FindUserUseCase;
 import co.pragma.usecase.user.cases.UpdateUserUseCase;
-import co.pragma.usecase.user.support.UserRoleValidation;
 import co.pragma.usecase.user.support.UserUpdateHelper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,13 +27,13 @@ public class UserUseCase implements CreateUserUseCase, FindUserUseCase, UpdateUs
 
     @Override
     public Mono<User> createUser(User user) {
-        UserRoleValidation roleValidation = new UserRoleValidation(roleRepository);
-
         return userRepository.findByEmail(user.email())
                 .flatMap(existing -> Mono.error(new DataIntegrationValidationException("Email already registered.")))
-                .then(Mono.just(user))
-                .flatMap(userNext -> roleValidation.validateRoleExists(user))
-                .flatMap(userRepository::createUser);
+                .then(userRepository.findByDocument(user.document()))
+                .flatMap(existing -> Mono.error(new DataIntegrationValidationException("Document already registered.")))
+                .then(roleRepository.findById(user.roleId())
+                        .switchIfEmpty(Mono.error(new DataIntegrationValidationException("Role does not exists."))))
+                .then(userRepository.createUser(user));
     }
 
     @Override
@@ -50,6 +50,12 @@ public class UserUseCase implements CreateUserUseCase, FindUserUseCase, UpdateUs
     @Override
     public Mono<User> findByEmail(UserEmail email) {
         return userRepository.findByEmail(email)
+                .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")));
+    }
+
+    @Override
+    public Mono<User> findByDocument(UserDocument document) {
+        return userRepository.findByDocument(document)
                 .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")));
     }
 

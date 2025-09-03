@@ -5,6 +5,7 @@ import co.pragma.model.user.User;
 import co.pragma.model.user.valueObject.*;
 import co.pragma.r2dbc.user.UserEntity;
 import co.pragma.r2dbc.user.mapper.support.UserDomainToEntityMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -12,13 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class UserAdapterMapper {
 
     private final UserDomainToEntityMapper mapperToEntity;
-
-    public UserAdapterMapper(UserDomainToEntityMapper mapperToEntity) {
-        this.mapperToEntity = mapperToEntity;
-    }
 
     public UserEntity mapToEntity(User user) {
         return mapperToEntity.domainToEntity(user);
@@ -29,6 +27,7 @@ public class UserAdapterMapper {
                 UserId.create(entity.getId()),
                 UserName.create(entity.getName()),
                 UserLastname.create(entity.getLastname()),
+                UserDocument.create(entity.getDocument()),
                 UserDateBirth.create(entity.getDateBirth()),
                 UserAddress.create(entity.getAddress()),
                 UserPhoneNumber.create(entity.getPhoneNumber()),
@@ -38,18 +37,17 @@ public class UserAdapterMapper {
         );
 
         return Mono
-                .zip(fieldsList, fields -> {
-                    UserId id = (UserId) fields[0];
-                    UserName name = (UserName) fields[1];
-                    UserLastname lastname = (UserLastname) fields[2];
-                    UserDateBirth dateBirth = (UserDateBirth) fields[3];
-                    UserAddress address = (UserAddress) fields[4];
-                    UserPhoneNumber phoneNumber = (UserPhoneNumber) fields[5];
-                    UserEmail email = (UserEmail) fields[6];
-                    UserSalary salary = (UserSalary) fields[7];
-                    RoleId roleId = (RoleId) fields[8];
-
-                    return new User(id, name, lastname, dateBirth, address, phoneNumber, email, salary, roleId);
-                });
+                .zip(fieldsList, fields -> new User(
+                        (UserId) fields[0],
+                        (UserName) fields[1],
+                        (UserLastname) fields[2],
+                        (UserDocument) fields[3],
+                        (UserDateBirth) fields[4],
+                        (UserAddress) fields[5],
+                        (UserPhoneNumber) fields[6],
+                        (UserEmail) fields[7],
+                        (UserSalary) fields[8],
+                        (RoleId) fields[9]
+                ));
     }
 }

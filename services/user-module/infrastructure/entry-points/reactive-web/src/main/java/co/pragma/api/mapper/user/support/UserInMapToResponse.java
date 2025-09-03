@@ -9,6 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 @Mapping(target = "id", source = "id.value")
 @Mapping(target = "name", source = "name.value")
 @Mapping(target = "lastname", source = "lastname.value")
+@Mapping(target = "document", source = "document.value")
 @Mapping(target = "dateBirth", source = "dateBirth.value")
 @Mapping(target = "address", source = "address.value")
 @Mapping(target = "phoneNumber", source = "phoneNumber.value")

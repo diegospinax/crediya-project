@@ -21,7 +21,7 @@ public class UserEntryMapper {
         this.mapperToResponse = mapperToResponse;
     }
 
-    public ResponseUserDto mapToResponse (User user) {
+    public ResponseUserDto mapToResponse(User user) {
         return mapperToResponse.toResponseDto(user);
     }
 
@@ -29,6 +29,7 @@ public class UserEntryMapper {
         List<Mono<?>> fieldsList = Arrays.asList(
                 UserName.create(saveUserDto.name()),
                 UserLastname.create(saveUserDto.lastname()),
+                UserDocument.create(saveUserDto.document()),
                 UserDateBirth.create(saveUserDto.dateBirth()),
                 UserAddress.create(saveUserDto.address()),
                 UserPhoneNumber.create(saveUserDto.phoneNumber()),
@@ -38,17 +39,19 @@ public class UserEntryMapper {
         );
 
         return Mono
-                .zip(fieldsList, fields -> {
-                    UserName name = (UserName) fields[0];
-                    UserLastname lastname = (UserLastname) fields[1];
-                    UserDateBirth dateBirth = (UserDateBirth) fields[2];
-                    UserAddress address = (UserAddress) fields[3];
-                    UserPhoneNumber phoneNumber = (UserPhoneNumber) fields[4];
-                    UserEmail email = (UserEmail) fields[5];
-                    UserSalary salary = (UserSalary) fields[6];
-                    RoleId roleId = (RoleId) fields[7];
-
-                    return new User(null, name, lastname, dateBirth, address, phoneNumber, email, salary, roleId);
-                });
+                .zip(fieldsList, fields -> new User(
+                        null,
+                        (UserName) fields[0],
+                        (UserLastname) fields[1],
+                        (UserDocument) fields[2],
+                        (UserDateBirth) fields[3],
+                        (UserAddress) fields[4],
+                        (UserPhoneNumber) fields[5],
+                        (UserEmail) fields[6],
+                        (UserSalary) fields[7],
+                        (RoleId) fields[8]
+                ));
     }
+
+    //TODO check for null values in PUT mapping
 }

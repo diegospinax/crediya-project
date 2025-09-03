@@ -4,6 +4,7 @@ import co.pragma.api.dto.user.ResponseUserDto;
 import co.pragma.api.dto.user.SaveUserDto;
 import co.pragma.api.mapper.user.UserEntryMapper;
 import co.pragma.model.user.User;
+import co.pragma.model.user.valueObject.UserDocument;
 import co.pragma.model.user.valueObject.UserEmail;
 import co.pragma.model.user.valueObject.UserId;
 import co.pragma.usecase.user.cases.CreateUserUseCase;
@@ -43,6 +44,16 @@ public class UserController {
         return new ResponseEntity<>(
                 UserId.create(userId)
                         .flatMap(findUserUseCase::findById)
+                        .map(entryMapper::mapToResponse),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/document")
+    public ResponseEntity<Mono<ResponseUserDto>> findByDocument(@RequestParam("value") String document) {
+        return new ResponseEntity<>(
+                UserDocument.create(document)
+                        .flatMap(findUserUseCase::findByDocument)
                         .map(entryMapper::mapToResponse),
                 HttpStatus.OK
         );

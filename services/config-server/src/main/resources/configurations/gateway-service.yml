@@ -7,9 +7,17 @@ spring:
             locator:
               enabled: true
           routes:
-            - id: user-module
+            - id: user-module-users
               uri: lb://USER-MODULE
               predicates:
                 - Path=/api/v1/users/**
+            - id: user-module-roles
+              uri: lb://USER-MODULE
+              predicates:
+                - Path=/api/v1/roles/**
+            - id: loan-module
+              uri: lb://LOAN-MODULE
+              predicates:
+                - Path=/api/v1/loans/**
 server:
   port: 8222
