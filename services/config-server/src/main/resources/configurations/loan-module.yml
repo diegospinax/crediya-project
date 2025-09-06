@@ -65,4 +65,4 @@ logging:
 
 application:
   config:
-    user-module-url: http://localhost:8222/api/v1/users
+    user-module-url: http://USER-MODULE/api/v1/users

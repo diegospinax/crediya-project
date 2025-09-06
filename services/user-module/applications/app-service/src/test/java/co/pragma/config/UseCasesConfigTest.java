@@ -32,11 +32,6 @@ public class UseCasesConfigTest {
     static class TestConfig {
 
         @Bean
-        public MyUseCase myUseCase() {
-            return new MyUseCase();
-        }
-
-        @Bean
         @Primary
         public RoleRepository roleRepository() {
             return Mockito.mock(RoleRepository.class);
@@ -49,9 +44,5 @@ public class UseCasesConfigTest {
         }
     }
 
-    static class MyUseCase {
-        public String execute() {
-            return "MyUseCase Test";
-        }
-    }
+
 }

@@ -11,13 +11,33 @@ spring:
               uri: lb://USER-MODULE
               predicates:
                 - Path=/api/v1/users/**
+              filters:
+                - AuthenticationFilter
             - id: user-module-roles
               uri: lb://USER-MODULE
               predicates:
                 - Path=/api/v1/roles/**
+              filters:
+                - AuthenticationFilter
             - id: loan-module
               uri: lb://LOAN-MODULE
               predicates:
                 - Path=/api/v1/loans/**
+              filters:
+                - AuthenticationFilter
+            - id: identity-service
+              uri: lb://IDENTITY-SERVICE
+              predicates:
+                - Path=/api/v1/auth/**
+              filters:
+                - AuthenticationFilter
 server:
   port: 8222
+
+jwt:
+  secret: 813359d57a6e11e5a51a815a5f1e813359d57a6e11e5a51a815a5f1e
+
+security:
+  public-routes:
+    - /api/v1/auth/login
+    - /eureka

@@ -36,7 +36,7 @@ public class LoanUseCase implements CreateLoanUseCase, FindLoanUseCase {
                 .switchIfEmpty(Mono.error(new NotFoundException("User not found.")))
                 .then(loanTypeRepository.findById(loan.loanTypeId())
                         .switchIfEmpty(Mono.error(new NotFoundException("Loan type does not exists."))))
-                .then(StateName.create("Received")
+                .then(StateName.create("RECEIVED")
                         .flatMap(stateRepository::findByName)
                         .switchIfEmpty(Mono.error(new NotFoundException("Default state does not exist.")))
                         .map(State::id))

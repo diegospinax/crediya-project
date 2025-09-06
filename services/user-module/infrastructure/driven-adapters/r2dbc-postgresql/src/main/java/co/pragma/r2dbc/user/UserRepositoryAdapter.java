@@ -5,6 +5,7 @@ import co.pragma.model.user.User;
 import co.pragma.model.user.gateways.UserRepository;
 import co.pragma.model.user.valueObject.UserDocument;
 import co.pragma.model.user.valueObject.UserEmail;
+import co.pragma.model.user.valueObject.UserId;
 import co.pragma.r2dbc.user.mapper.UserAdapterMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -34,8 +35,8 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    public Mono<User> findById(Long userId) {
-        return userRepository.findById(userId)
+    public Mono<User> findById(UserId userId) {
+        return userRepository.findById(userId.value)
                 .flatMap(adapterMapper::mapToDomain);
     }
 
@@ -54,8 +55,8 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    public Mono<Void> deleteUser(Long userId) {
-        return userRepository.deleteById(userId);
+    public Mono<Void> deleteUser(UserId userId) {
+        return userRepository.deleteById(userId.value);
     }
 
     @Override

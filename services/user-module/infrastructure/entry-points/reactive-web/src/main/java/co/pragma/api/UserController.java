@@ -4,6 +4,7 @@ import co.pragma.api.dto.user.ResponseUserDto;
 import co.pragma.api.dto.user.SaveUserDto;
 import co.pragma.api.mapper.user.UserEntryMapper;
 import co.pragma.model.user.User;
+import co.pragma.model.user.dto.UserResponse;
 import co.pragma.model.user.valueObject.UserDocument;
 import co.pragma.model.user.valueObject.UserEmail;
 import co.pragma.model.user.valueObject.UserId;
@@ -30,56 +31,51 @@ public class UserController {
     private final UpdateUserUseCase updateUserUseCase;
 
     @PostMapping("/create")
-    public ResponseEntity<Mono<ResponseUserDto>> createUser(@RequestBody SaveUserDto saveUserDto) {
+    public ResponseEntity<Mono<UserResponse>> createUser(@RequestBody SaveUserDto saveUserDto) {
         return new ResponseEntity<>(
                 entryMapper.mapToDomain(saveUserDto)
-                        .flatMap(createUseCase::createUser)
-                        .map(entryMapper::mapToResponse),
+                        .flatMap(createUseCase::createUser),
                 HttpStatus.CREATED
         );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Mono<ResponseUserDto>> findById(@PathVariable("id") Long userId) {
+    public ResponseEntity<Mono<UserResponse>> findById(@PathVariable("id") Long userId) {
         return new ResponseEntity<>(
                 UserId.create(userId)
-                        .flatMap(findUserUseCase::findById)
-                        .map(entryMapper::mapToResponse),
+                        .flatMap(findUserUseCase::findById),
                 HttpStatus.OK
         );
     }
 
     @GetMapping("/document")
-    public ResponseEntity<Mono<ResponseUserDto>> findByDocument(@RequestParam("value") String document) {
+    public ResponseEntity<Mono<UserResponse>> findByDocument(@RequestParam("value") String document) {
         return new ResponseEntity<>(
                 UserDocument.create(document)
-                        .flatMap(findUserUseCase::findByDocument)
-                        .map(entryMapper::mapToResponse),
+                        .flatMap(findUserUseCase::findByDocument),
                 HttpStatus.OK
         );
     }
 
     @GetMapping("/email")
-    public ResponseEntity<Mono<ResponseUserDto>> findByEmail(@RequestParam("value") String email) {
+    public ResponseEntity<Mono<UserResponse>> findByEmail(@RequestParam("value") String email) {
         return new ResponseEntity<>(
                 UserEmail.create(email)
-                        .flatMap(findUserUseCase::findByEmail)
-                        .map(entryMapper::mapToResponse),
+                        .flatMap(findUserUseCase::findByEmail),
                 HttpStatus.OK
         );
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Flux<ResponseUserDto>> findAll() {
+    public ResponseEntity<Flux<UserResponse>> findAll() {
         return new ResponseEntity<>(
-                findUserUseCase.findAll()
-                        .map(entryMapper::mapToResponse),
+                findUserUseCase.findAll(),
                 HttpStatus.OK
         );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Mono<ResponseUserDto>> updateUser(@PathVariable("id") Long userId, @RequestBody SaveUserDto saveUserDto) {
+    public ResponseEntity<Mono<UserResponse>> updateUser(@PathVariable("id") Long userId, @RequestBody SaveUserDto saveUserDto) {
         Mono<UserId> userIdMono = UserId.create(userId);
         return new ResponseEntity<>(
                 Mono
@@ -88,8 +84,7 @@ public class UserController {
                             UserId id = parameters.getT1();
                             User user = parameters.getT2();
                             return updateUserUseCase.updateUser(id, user);
-                        })
-                        .map(entryMapper::mapToResponse),
+                        }),
                 HttpStatus.OK
         );
     }

@@ -2,6 +2,7 @@ package co.pragma.usecase.user;
 
 import co.pragma.model.role.gateways.RoleRepository;
 import co.pragma.model.user.User;
+import co.pragma.model.user.dto.UserResponse;
 import co.pragma.model.user.gateways.UserRepository;
 import co.pragma.model.user.valueObject.UserDocument;
 import co.pragma.model.user.valueObject.UserEmail;
@@ -26,54 +27,66 @@ public class UserUseCase implements CreateUserUseCase, FindUserUseCase, UpdateUs
     }
 
     @Override
-    public Mono<User> createUser(User user) {
+    public Mono<UserResponse> createUser(User user) {
         return userRepository.findByEmail(user.email())
                 .flatMap(existing -> Mono.error(new DataIntegrationValidationException("Email already registered.")))
                 .then(userRepository.findByDocument(user.document()))
                 .flatMap(existing -> Mono.error(new DataIntegrationValidationException("Document already registered.")))
                 .then(roleRepository.findById(user.roleId())
                         .switchIfEmpty(Mono.error(new DataIntegrationValidationException("Role does not exists."))))
-                .then(userRepository.createUser(user));
+                .then(userRepository.createUser(user))
+                .flatMap(this::mapUserToResponse);
     }
 
     @Override
-    public Flux<User> findAll() {
-        return userRepository.findAll();
+    public Flux<UserResponse> findAll() {
+        return userRepository.findAll()
+                .flatMap(this::mapUserToResponse);
     }
 
     @Override
-    public Mono<User> findById(UserId userId) {
-        return userRepository.findById(userId.value)
-                .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")));
+    public Mono<UserResponse> findById(UserId userId) {
+        return userRepository.findById(userId)
+                .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")))
+                .flatMap(this::mapUserToResponse);
     }
 
     @Override
-    public Mono<User> findByEmail(UserEmail email) {
+    public Mono<UserResponse> findByEmail(UserEmail email) {
         return userRepository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")));
+                .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")))
+                .flatMap(this::mapUserToResponse);
     }
 
     @Override
-    public Mono<User> findByDocument(UserDocument document) {
+    public Mono<UserResponse> findByDocument(UserDocument document) {
         return userRepository.findByDocument(document)
-                .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")));
+                .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")))
+                .flatMap(this::mapUserToResponse);
     }
 
     @Override
-    public Mono<User> updateUser(UserId userId, User userNewData) {
+    public Mono<UserResponse> updateUser(UserId userId, User userNewData) {
         UserUpdateHelper updateHelper = new UserUpdateHelper(userRepository, roleRepository);
 
-        return userRepository.findById(userId.value)
+        return userRepository.findById(userId)
                 .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")))
                 .flatMap(existingUser -> updateHelper.validateKeysChanges(userNewData, existingUser))
                 .map(existingUser -> updateHelper.updateFields(existingUser, userNewData))
-                .flatMap(userRepository::updateUser);
+                .flatMap(userRepository::updateUser)
+                .flatMap(this::mapUserToResponse);
     }
 
     @Override
     public Mono<Void> deleteUser(UserId userId) {
-        return userRepository.findById(userId.value)
+        return userRepository.findById(userId)
                 .switchIfEmpty(Mono.error(new DataIntegrationValidationException("User does not exists.")))
-                .flatMap(user -> userRepository.deleteUser(user.id().value));
+                .flatMap(user -> userRepository.deleteUser(user.id()));
+    }
+
+    private Mono<UserResponse> mapUserToResponse(User user) {
+        return roleRepository.findById(user.roleId())
+                .switchIfEmpty(Mono.error(new DataIntegrationValidationException("Role does not exists.")))
+                .map(role -> new UserResponse(user, role.name()));
     }
 }
