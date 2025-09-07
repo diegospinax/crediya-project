@@ -1,8 +1,8 @@
 package co.pragma.api;
 
-import co.pragma.api.dto.user.ResponseUserDto;
 import co.pragma.api.dto.user.SaveUserDto;
 import co.pragma.api.mapper.user.UserEntryMapper;
+import co.pragma.authenticationcontext.ContextHolder;
 import co.pragma.model.user.User;
 import co.pragma.model.user.dto.UserResponse;
 import co.pragma.model.user.valueObject.UserDocument;
@@ -52,7 +52,11 @@ public class UserController {
     public ResponseEntity<Mono<UserResponse>> findByDocument(@RequestParam("value") String document) {
         return new ResponseEntity<>(
                 UserDocument.create(document)
-                        .flatMap(findUserUseCase::findByDocument),
+                        .zipWith(ContextHolder.getRole())
+                        .flatMap(fields -> {
+                            System.out.println(fields.getT2());
+                            return findUserUseCase.findByDocument(fields.getT1());
+                        }),
                 HttpStatus.OK
         );
     }

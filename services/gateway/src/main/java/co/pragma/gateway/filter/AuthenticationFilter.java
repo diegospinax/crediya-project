@@ -57,7 +57,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 Map<String, Claim> claims = verifyToken(token).getClaims();
 
                 ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
-                        .header("X-User-Id", claims.get("userId").asString())
+                        .header("X-User-Id", String.valueOf(claims.get("userId").asLong()))
                         .header("X-User-Sub", claims.get("sub").asString())
                         .header("X-User-Role", claims.get("role").asList(String.class).getFirst())
                         .build();
