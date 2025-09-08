@@ -12,3 +12,5 @@ create table auth(
 
                      primary key (id)
 );
+
+insert into auth (email, password, role, user_id) VALUES ('d@mail.com', '$2y$10$xDUukG8ecrGh30HEy2bfQ.2h4XeqbrmnGYRCCrV/e59F0UOxMJ5h2', 'ADMIN', 1);
