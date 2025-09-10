@@ -14,6 +14,7 @@ public class UserEntity {
     private Long id;
     private String name;
     private String lastname;
+    private String document;
     @Column("date_birth")
     private LocalDate dateBirth;
     private String address;

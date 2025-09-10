@@ -46,6 +46,7 @@ class UserRepositoryAdapterTest {
                 UserId.create(1L).block(),
                 UserName.create("Danna").block(),
                 UserLastname.create("García").block(),
+                UserDocument.create("1032700000").block(),
                 UserDateBirth.create(LocalDate.of(1992, 8, 12)).block(),
                 UserAddress.create("Calle_25_#54-30._Bogotá,_Colombia").block(),
                 UserPhoneNumber.create("3104959023").block(),
@@ -72,7 +73,7 @@ class UserRepositoryAdapterTest {
         when(userRepository.findById(any(Long.class))).thenReturn(Mono.just(userEntity));
         when(userAdapterMapper.mapToDomain(any(UserEntity.class))).thenReturn(Mono.just(user));
 
-        StepVerifier.create(repositoryAdapter.findById(1L))
+        StepVerifier.create(repositoryAdapter.findById(UserId.create(1L).block()))
                 .expectNextMatches(userById -> userById.email().value.equals(user.email().value))
                 .verifyComplete();
     }
@@ -123,7 +124,7 @@ class UserRepositoryAdapterTest {
     void mustDeleteUser() {
         when(userRepository.deleteById(any(Long.class))).thenReturn(Mono.empty());
 
-        StepVerifier.create(repositoryAdapter.deleteUser(user.id().value))
+        StepVerifier.create(repositoryAdapter.deleteUser(user.id()))
                 .expectNext()
                 .verifyComplete();
     }

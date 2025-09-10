@@ -32,3 +32,27 @@ create table loans (
     constraint fk_loan_request_state foreign key (state_id) references states(id),
     constraint fk_loan_request_loan_type foreign key (loan_type_id) references loan_types(id)
 );
+
+insert into loan_types (name, min_amount, max_amount, interest_rate, automatic_validate)
+values ('MORTGAGE', 100, 200000, 0.2, false);
+
+insert into states (name, description) values
+-- 1. Start of the process
+('RECEIVED', 'The loan application has been received but has not yet been reviewed.'),
+
+-- 2. Review phase
+('UNDER_REVIEW', 'The application is currently being reviewed by a credit analyst.'),
+
+-- 3. Outcome
+('PRE_APPROVED', 'The application has been pre-approved, subject to further validations.'),
+('APPROVED', 'The application has been approved and is ready for disbursement.'),
+('REJECTED', 'The application has been rejected for not meeting the criteria.'),
+
+-- 4. Disbursement and closure
+('DISBURSED', 'The loan has been successfully disbursed.'),
+('CANCELLED_BY_CLIENT', 'The client has requested to cancel the application process.'),
+('CANCELLED_BY_BANK', 'The bank has cancelled the application due to inactivity, inconsistencies, or other reasons.'),
+
+-- 5. Follow-up
+('UNDER_LEGAL_REVIEW', 'The application is under legal review before disbursement.'),
+('IN_CONTRACT_SIGNING', 'The client is in the process of signing the loan agreement.');

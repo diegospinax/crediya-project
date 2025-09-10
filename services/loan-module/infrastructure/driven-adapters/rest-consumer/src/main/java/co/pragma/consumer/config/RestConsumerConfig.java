@@ -1,5 +1,6 @@
 package co.pragma.consumer.config;
 
+import co.pragma.usecase.loan.support.ContextHolder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
@@ -30,10 +32,21 @@ public class RestConsumerConfig {
     @Bean
     public WebClient getWebClient(WebClient.Builder builder) {
         return builder
-            .baseUrl(url)
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-            .clientConnector(getClientHttpConnector())
-            .build();
+                .filter((request, next) ->
+                        ContextHolder.getAuthContext()
+                                .flatMap(userCtx -> {
+                                    ClientRequest newRequest = ClientRequest.from(request)
+                                            .header("X-User-Id", String.valueOf(userCtx.getUserId()))
+                                            .header("X-User-Sub", userCtx.getEmail())
+                                            .header("X-User-Role", userCtx.getRole())
+                                            .build();
+                                    return next.exchange(newRequest);
+                                })
+                )
+                .baseUrl(url)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                .clientConnector(getClientHttpConnector())
+                .build();
     }
 
     private ClientHttpConnector getClientHttpConnector() {

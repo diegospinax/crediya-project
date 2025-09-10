@@ -3,6 +3,7 @@ package co.pragma.api.exception;
 import co.pragma.model.role.exception.RoleValidationException;
 import co.pragma.model.user.exception.UserValidationException;
 import co.pragma.usecase.exception.DataIntegrationValidationException;
+import co.pragma.usecase.exception.AuthorizationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +56,12 @@ public class GlobalExceptionHandler {
                 exchange.getRequest().getPath().value()
         );
         return new ResponseEntity<>(Mono.just(response), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<Mono<String>> handleAuthorizationException(RuntimeException e, ServerWebExchange exchange) {
+        log.info("Authorization exception, {}", e.getMessage(), e);
+        return new ResponseEntity<>(Mono.just("Unauthorized."), HttpStatus.FORBIDDEN);
     }
 
 }

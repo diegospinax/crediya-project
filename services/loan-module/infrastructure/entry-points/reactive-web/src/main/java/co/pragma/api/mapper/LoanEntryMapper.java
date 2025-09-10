@@ -29,7 +29,6 @@ public class LoanEntryMapper {
                 LoanAmount.create(requestLoan.amount()),
                 LoanTerm.create(requestLoan.term()),
                 LoanUserDocument.create(requestLoan.userDocument()),
-                StateId.create(requestLoan.stateId()),
                 LoanTypeId.create(requestLoan.loanTypeId())
         );
 
@@ -38,8 +37,8 @@ public class LoanEntryMapper {
                 (LoanAmount) fields[0],
                 (LoanTerm) fields[1],
                 (LoanUserDocument) fields[2],
-                (StateId) fields[3],
-                (LoanTypeId) fields[4]
+                null,
+                (LoanTypeId) fields[3]
         ));
     }
 

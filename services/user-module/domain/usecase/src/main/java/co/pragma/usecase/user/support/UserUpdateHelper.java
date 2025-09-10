@@ -28,6 +28,7 @@ public class UserUpdateHelper {
                 currentUser.id(),
                 updateUserField(updateUser.name(), currentUser.name()),
                 updateUserField(updateUser.lastname(), currentUser.lastname()),
+                updateUserField(updateUser.document(), currentUser.document()),
                 updateUserField(updateUser.dateBirth(), currentUser.dateBirth()),
                 updateUserField(updateUser.address(), currentUser.address()),
                 updateUserField(updateUser.phoneNumber(), currentUser.phoneNumber()),

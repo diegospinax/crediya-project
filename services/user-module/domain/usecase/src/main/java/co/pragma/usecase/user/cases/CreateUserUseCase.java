@@ -1,9 +1,9 @@
 package co.pragma.usecase.user.cases;
 
-import co.pragma.model.role.valueObject.RoleId;
 import co.pragma.model.user.User;
+import co.pragma.model.user.dto.UserResponse;
 import reactor.core.publisher.Mono;
 
 public interface CreateUserUseCase {
-    Mono<User> createUser(User user);
+    Mono<UserResponse> createUser(User user);
 }

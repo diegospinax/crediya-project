@@ -1,0 +1,67 @@
+server:
+  port: 8830
+spring:
+  devtools:
+    add-properties: false
+  h2:
+    console:
+      enabled: true
+      path: "/h2"
+  profiles:
+    include: null
+  webflux:
+    base-path: /api/v1
+adapters:
+  r2dbc:
+    host: "localhost"
+    username: "diegospinax"
+    password: 1115
+    port: 5432
+    schema: "public"
+    database: "webflux_auth"
+adapter:
+  restconsumer:
+    timeout: 5000
+    url: "http://localhost:8080"
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+resilience4j:
+  circuitbreaker:
+    instances:
+      testGet:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
+      testPost:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
+application:
+  config:
+    user-module-url: "http://USER-MODULE/api/v1/users"
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8080"
+
+jwt:
+  secret: 813359d57a6e11e5a51a815a5f1e813359d57a6e11e5a51a815a5f1e
+  expiration: 3600

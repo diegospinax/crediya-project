@@ -1,4 +1,4 @@
-package co.pragma.usecase.loan.mapper;
+package co.pragma.usecase.loan.support.mapper;
 
 import co.pragma.model.loan.Loan;
 import co.pragma.model.loan.valueObject.state.StateId;

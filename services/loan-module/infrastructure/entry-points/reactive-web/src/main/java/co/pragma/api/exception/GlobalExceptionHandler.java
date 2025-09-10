@@ -1,8 +1,10 @@
 package co.pragma.api.exception;
 
+import co.pragma.model.loan.exception.UserClientException;
 import co.pragma.model.loan.exception.LoanTypeValidationException;
 import co.pragma.model.loan.exception.LoanValidationException;
 import co.pragma.model.loan.exception.StateValidationException;
+import co.pragma.usecase.exceptions.AuthorizationException;
 import co.pragma.usecase.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,7 +38,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(Mono.just(response), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({NotFoundException.class, LoanTypeValidationException.class, LoanValidationException.class, StateValidationException.class})
+    @ExceptionHandler({NotFoundException.class, LoanTypeValidationException.class, LoanValidationException.class, StateValidationException.class, UserClientException.class})
     public ResponseEntity<Mono<ExceptionResponse>> handleValidationException(RuntimeException e, ServerWebExchange exchange) {
         log.info("Client exception, {}", e.getMessage(), e);
         ExceptionResponse response = new ExceptionResponse(
@@ -56,6 +58,12 @@ public class GlobalExceptionHandler {
                 exchange.getRequest().getPath().value()
         );
         return new ResponseEntity<>(Mono.just(response), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<Mono<String>> handleAuthorizationException(RuntimeException e, ServerWebExchange exchange) {
+        log.info("Authorization exception, {}", e.getMessage(), e);
+        return new ResponseEntity<>(Mono.just("Unauthorized."), HttpStatus.FORBIDDEN);
     }
 
 }
