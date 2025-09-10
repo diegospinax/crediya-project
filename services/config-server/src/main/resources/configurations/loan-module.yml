@@ -54,7 +54,7 @@ adapters:
     port: 5432
     database: webflux_loan
     schema: public
-    username: postgres
+    username: diegospinax
     password: 1115
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"

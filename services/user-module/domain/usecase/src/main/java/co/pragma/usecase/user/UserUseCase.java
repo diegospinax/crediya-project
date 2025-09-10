@@ -2,16 +2,19 @@ package co.pragma.usecase.user;
 
 import co.pragma.model.role.gateways.RoleRepository;
 import co.pragma.model.user.User;
+import co.pragma.model.user.ctx.AuthContext;
 import co.pragma.model.user.dto.UserResponse;
 import co.pragma.model.user.gateways.UserRepository;
 import co.pragma.model.user.valueObject.UserDocument;
 import co.pragma.model.user.valueObject.UserEmail;
 import co.pragma.model.user.valueObject.UserId;
 import co.pragma.usecase.exception.DataIntegrationValidationException;
+import co.pragma.usecase.exception.AuthorizationException;
 import co.pragma.usecase.user.cases.CreateUserUseCase;
 import co.pragma.usecase.user.cases.DeleteUserUseCase;
 import co.pragma.usecase.user.cases.FindUserUseCase;
 import co.pragma.usecase.user.cases.UpdateUserUseCase;
+import co.pragma.usecase.user.support.ContextHolder;
 import co.pragma.usecase.user.support.UserUpdateHelper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,14 +31,35 @@ public class UserUseCase implements CreateUserUseCase, FindUserUseCase, UpdateUs
 
     @Override
     public Mono<UserResponse> createUser(User user) {
-        return userRepository.findByEmail(user.email())
-                .flatMap(existing -> Mono.error(new DataIntegrationValidationException("Email already registered.")))
-                .then(userRepository.findByDocument(user.document()))
-                .flatMap(existing -> Mono.error(new DataIntegrationValidationException("Document already registered.")))
-                .then(roleRepository.findById(user.roleId())
-                        .switchIfEmpty(Mono.error(new DataIntegrationValidationException("Role does not exists."))))
+        return validateAuthorization("ROLE_ADMIN")
+                .then(validateDataIntegrity(user))
                 .then(userRepository.createUser(user))
                 .flatMap(this::mapUserToResponse);
+    }
+
+    private Mono<AuthContext> validateAuthorization(String... roles) {
+        return ContextHolder.getAuthContext()
+                .filter(ctx -> ctx.hasAnyRole(roles))
+                .switchIfEmpty(Mono.error(new AuthorizationException("Unauthorized")));
+    }
+
+    private Mono<Void> validateDataIntegrity(User user) {
+        return Mono.zip(
+                        userRepository.findByEmail(user.email()).hasElement(),
+                        userRepository.findByDocument(user.document()).hasElement(),
+                        roleRepository.findById(user.roleId()).hasElement()
+                )
+                .flatMap(validationTuple -> {
+                    if (validationTuple.getT1() || validationTuple.getT2())
+                        return Mono.error(new DataIntegrationValidationException(
+                                validationTuple.getT1()
+                                        ? "Email already registered."
+                                        : "Document already registered.")
+                        );
+                    if (!validationTuple.getT3())
+                        return Mono.error(new DataIntegrationValidationException("Role does not exists."));
+                    return Mono.empty();
+                });
     }
 
     @Override

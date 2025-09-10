@@ -1,6 +1,6 @@
 package co.pragma.authenticationcontext;
 
-import co.pragma.model.user.ctx.AuthContext;
+import co.pragma.model.loan.ctx.AuthContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -19,17 +19,12 @@ public class AuthenticationContextFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
-        if (exchange.getRequest().getURI().getPath().matches("^/api/v1/users/\\d+$")) {
-            return chain.filter(exchange)
-                    .contextWrite(Context.empty());
-        }
-
         String userId = exchange.getRequest().getHeaders().getFirst("X-User-Id");
         String email = exchange.getRequest().getHeaders().getFirst("X-User-Sub");
         String role = exchange.getRequest().getHeaders().getFirst("X-User-Role");
 
         log.info("DATA HEADERS: " + userId + email + role);
-        if (userId == null) {
+        if (userId == null || email == null || role == null) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }

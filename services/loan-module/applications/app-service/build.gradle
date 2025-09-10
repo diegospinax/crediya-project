@@ -5,6 +5,7 @@ ext {
 }
 
 dependencies {
+	implementation project(':authentication-context')
 	implementation project(':reactive-web')
 	implementation 'org.reactivecommons.utils:object-mapper:0.1.0'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'

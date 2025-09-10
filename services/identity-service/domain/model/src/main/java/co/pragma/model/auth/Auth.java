@@ -14,15 +14,15 @@ public record Auth(
         AuthRole role
 ) {
     public Auth withRole(AuthRole authRole){
-        return new Auth(
-                this.id(),
-                this.email(),
-                this.password(),
-                this.failedLoginAttempts(),
-                this.isLocked(),
-                this.userId(),
-                authRole
-        );
+        return  new Auth(
+                        this.id(),
+                        this.email(),
+                        this.password(),
+                        this.failedLoginAttempts(),
+                        this.isLocked(),
+                        this.userId(),
+                        authRole
+                );
     }
 
     public Auth withPassword(AuthPassword authPassword) {

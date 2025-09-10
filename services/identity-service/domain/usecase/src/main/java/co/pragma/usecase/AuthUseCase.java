@@ -2,6 +2,7 @@ package co.pragma.usecase;
 
 import co.pragma.model.auth.Auth;
 import co.pragma.model.auth.User;
+import co.pragma.model.auth.valueObject.AuthPassword;
 import co.pragma.model.auth.valueObject.Token;
 import co.pragma.model.auth.dto.AuthRequest;
 import co.pragma.model.auth.exception.AuthValidationException;
@@ -31,11 +32,8 @@ public class AuthUseCase implements AuthRegisterUseCase, AuthLoginUseCase, AuthF
         return existingUser
                 .flatMap(auth -> userClient.findUserById(auth.userId())
                     .switchIfEmpty(Mono.error(new AuthValidationException("No user associated with those credentials.")))
-                    .flatMap(user -> {
-                        System.out.println(user.role());
-                        return AuthRole.create(user.role());
-                    })
-                        .map(auth::withRole)
+                    .flatMap(user -> AuthRole.create(user.role())
+                            .map(auth::withRole))
                 )
                 .flatMap(user -> authService.authenticate(authRequest, user));
 
@@ -47,13 +45,9 @@ public class AuthUseCase implements AuthRegisterUseCase, AuthLoginUseCase, AuthF
                 .flatMap(existing -> Mono.error(new AuthValidationException("User with email already exists.")))
                 .then(userClient.findUserById(auth.userId()))
                         .switchIfEmpty(Mono.error(new AuthValidationException("User does not exists.")))
-                .flatMap(user -> AuthRole.create(user.role()))
-                .map(auth::withRole)
-                .zipWith(authService.encryptPassword(auth.password()))
-                .map(tuple -> tuple.getT1().withPassword(tuple.getT2()))
+                .then(authService.encryptPassword(auth.password()))
+                .map(auth::withPassword)
                 .flatMap(authRepository::register);
-
-
     }
 
     @Override

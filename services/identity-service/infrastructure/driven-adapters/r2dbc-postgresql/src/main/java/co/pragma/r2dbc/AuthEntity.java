@@ -18,5 +18,4 @@ public class AuthEntity {
     private Boolean isLocked;
     @Column("user_id")
     private Long userId;
-
 }

@@ -1,11 +1,11 @@
-package co.pragma.authenticationcontext;
+package co.pragma.model.loan.ctx;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserContext {
+public class AuthContext {
 
     private Long userId;
     private String email;

@@ -1,28 +1,29 @@
-package co.pragma.authenticationcontext;
+package co.pragma.usecase.user.support;
 
+import co.pragma.model.user.ctx.AuthContext;
 import reactor.core.publisher.Mono;
 
 public class ContextHolder {
 
-    public static Mono<UserContext> getUserContext() {
+    public static Mono<AuthContext> getAuthContext() {
         return Mono.deferContextual(ctx ->
-                Mono.justOrEmpty(ctx.getOrEmpty(UserContext.class)));
+                Mono.justOrEmpty(ctx.getOrEmpty(AuthContext.class)));
     }
 
     public static Mono<Long> getUserId() {
-        return getUserContext().map(UserContext::getUserId);
+        return getAuthContext().map(AuthContext::getUserId);
     }
 
     public static Mono<String> getEmail() {
-        return getUserContext().map(UserContext::getEmail);
+        return getAuthContext().map(AuthContext::getEmail);
     }
 
     public static Mono<String> getRole() {
-        return getUserContext().map(UserContext::getRole);
+        return getAuthContext().map(AuthContext::getRole);
     }
 
     public static Mono<Boolean> hasAnyRole(String... roles) {
-        return getUserContext()
+        return getAuthContext()
                 .map(ctx -> ctx.hasAnyRole(roles))
                 .defaultIfEmpty(false);
     }

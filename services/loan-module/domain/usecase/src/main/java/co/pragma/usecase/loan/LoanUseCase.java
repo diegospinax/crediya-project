@@ -2,15 +2,19 @@ package co.pragma.usecase.loan;
 
 import co.pragma.model.loan.Loan;
 import co.pragma.model.loan.State;
+import co.pragma.model.loan.ctx.AuthContext;
 import co.pragma.model.loan.gateways.LoanRepository;
 import co.pragma.model.loan.gateways.LoanTypeRepository;
 import co.pragma.model.loan.gateways.StateRepository;
 import co.pragma.model.loan.gateways.UserClient;
+import co.pragma.model.loan.valueObject.loan.LoanUserDocument;
 import co.pragma.model.loan.valueObject.state.StateName;
+import co.pragma.usecase.exceptions.AuthorizationException;
 import co.pragma.usecase.exceptions.NotFoundException;
 import co.pragma.usecase.loan.cases.CreateLoanUseCase;
 import co.pragma.usecase.loan.cases.FindLoanUseCase;
-import co.pragma.usecase.loan.mapper.LoanMapper;
+import co.pragma.usecase.loan.support.ContextHolder;
+import co.pragma.usecase.loan.support.mapper.LoanMapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -34,6 +38,7 @@ public class LoanUseCase implements CreateLoanUseCase, FindLoanUseCase {
     public Mono<Loan> createLoan(Loan loan) {
         return userClient.findUserByDocument(loan.userDocument())
                 .switchIfEmpty(Mono.error(new NotFoundException("User not found.")))
+                .flatMap(user -> validateAuthorization(user.id()))
                 .then(loanTypeRepository.findById(loan.loanTypeId())
                         .switchIfEmpty(Mono.error(new NotFoundException("Loan type does not exists."))))
                 .then(StateName.create("RECEIVED")
@@ -42,6 +47,12 @@ public class LoanUseCase implements CreateLoanUseCase, FindLoanUseCase {
                         .map(State::id))
                 .flatMap(stateId -> loanMapper.creationMap(loan, stateId))
                 .flatMap(loanRepository::createLoan);
+    }
+
+    private Mono<Long> validateAuthorization(Long userId) {
+        return ContextHolder.getUserId()
+                .filter(ctxId -> ctxId.equals(userId))
+                .switchIfEmpty(Mono.error(new AuthorizationException("Unauthorized")));
     }
 
     @Override

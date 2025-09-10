@@ -28,9 +28,10 @@ CREATE TABLE "users"
 
 create index idx_users_id_role on users (id_role);
 
-insert into roles (name, description) VALUES ('ADMIN', 'Admin role.');
-insert into roles (name, description) VALUES ('CONSULTANT', 'Consultant role.');
-insert into roles (name, description) VALUES ('ADVISOR', 'Advisor role.');
+insert into roles (name, description)
+VALUES ('ADMIN', 'Admin role.'),
+('CONSULTANT', 'Consultant role.'),
+('ADVISOR', 'Advisor role.');
 
 insert into "users" (name, lastname, document, date_birth, address, phone_number, email, salary, id_role)
-values ('DIEGO', 'SÁNCHEZ', '1032700000', '2004-03-11', 'CALLE_21_#74-10._BOGOTÁ,_COLOMBIA', '3153900000', 'd@mail.com', 5500000, 1)
+values ('DIEGO', 'SÁNCHEZ', '1032700000', '2004-03-11', 'CALLE_21_#74-10._BOGOTÁ,_COLOMBIA', '3153900000', 'd@mail.com', 5500000, 1);
