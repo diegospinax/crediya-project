@@ -2,12 +2,13 @@ package co.pragma.usecase.loan;
 
 import co.pragma.model.loan.Loan;
 import co.pragma.model.loan.State;
-import co.pragma.model.loan.ctx.AuthContext;
 import co.pragma.model.loan.gateways.LoanRepository;
 import co.pragma.model.loan.gateways.LoanTypeRepository;
 import co.pragma.model.loan.gateways.StateRepository;
 import co.pragma.model.loan.gateways.UserClient;
-import co.pragma.model.loan.valueObject.loan.LoanUserDocument;
+import co.pragma.model.loan.valueObject.PaginationData;
+import co.pragma.model.loan.valueObject.loanType.LoanTypeId;
+import co.pragma.model.loan.valueObject.state.StateId;
 import co.pragma.model.loan.valueObject.state.StateName;
 import co.pragma.usecase.exceptions.AuthorizationException;
 import co.pragma.usecase.exceptions.NotFoundException;
@@ -17,6 +18,8 @@ import co.pragma.usecase.loan.support.ContextHolder;
 import co.pragma.usecase.loan.support.mapper.LoanMapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 public class LoanUseCase implements CreateLoanUseCase, FindLoanUseCase {
 
@@ -56,7 +59,12 @@ public class LoanUseCase implements CreateLoanUseCase, FindLoanUseCase {
     }
 
     @Override
-    public Flux<Loan> findAll() {
-        return loanRepository.findAll();
+    public Flux<Loan> findAll(StateId stateId, PaginationData paginationData) {
+        if (stateId != null)
+            return stateRepository.findById(stateId)
+                    .switchIfEmpty(Mono.error(new NotFoundException("State not found.")))
+                    .thenMany(loanRepository.findAll(stateId, paginationData));
+
+        return loanRepository.findAll(null, paginationData);
     }
 }

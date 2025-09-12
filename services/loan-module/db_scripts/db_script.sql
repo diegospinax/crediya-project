@@ -41,18 +41,9 @@ insert into states (name, description) values
 ('RECEIVED', 'The loan application has been received but has not yet been reviewed.'),
 
 -- 2. Review phase
-('UNDER_REVIEW', 'The application is currently being reviewed by a credit analyst.'),
+('PENDING_REVIEW', 'The application is pending for review.'),
 
 -- 3. Outcome
-('PRE_APPROVED', 'The application has been pre-approved, subject to further validations.'),
+('UNDER_REVIEW', 'The application is currently being reviewed by a credit analyst.'),
 ('APPROVED', 'The application has been approved and is ready for disbursement.'),
-('REJECTED', 'The application has been rejected for not meeting the criteria.'),
-
--- 4. Disbursement and closure
-('DISBURSED', 'The loan has been successfully disbursed.'),
-('CANCELLED_BY_CLIENT', 'The client has requested to cancel the application process.'),
-('CANCELLED_BY_BANK', 'The bank has cancelled the application due to inactivity, inconsistencies, or other reasons.'),
-
--- 5. Follow-up
-('UNDER_LEGAL_REVIEW', 'The application is under legal review before disbursement.'),
-('IN_CONTRACT_SIGNING', 'The client is in the process of signing the loan agreement.');
+('REJECTED', 'The application has been rejected for not meeting the criteria.');
