@@ -1,7 +1,8 @@
 package co.pragma.r2dbc.state;
 
-import jakarta.persistence.Id;
+
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Data

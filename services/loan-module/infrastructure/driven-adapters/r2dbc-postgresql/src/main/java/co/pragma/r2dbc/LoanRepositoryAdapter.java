@@ -2,6 +2,8 @@ package co.pragma.r2dbc;
 
 import co.pragma.model.loan.Loan;
 import co.pragma.model.loan.gateways.LoanRepository;
+import co.pragma.model.loan.valueObject.PaginationData;
+import co.pragma.model.loan.valueObject.state.StateId;
 import co.pragma.r2dbc.mapper.LoanAdapterMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -23,8 +25,14 @@ public class LoanRepositoryAdapter implements LoanRepository {
     }
 
     @Override
-    public Flux<Loan> findAll() {
-        return loanRepository.findAll()
-                .flatMap(adapterMapper::mapToDomain);
+    public Flux<Loan> findAll(StateId stateId, PaginationData paginationData) {
+        int offset = paginationData.pageSize() *  paginationData.pageNumber();
+
+        if (stateId != null)
+            return loanRepository.findAllPaginatedByStateId(stateId.value, paginationData.pageSize(), offset)
+                    .flatMap(adapterMapper::mapToDomain);
+        else
+            return loanRepository.findAllPaginated(paginationData.pageSize(), offset)
+                    .flatMap(adapterMapper::mapToDomain);
     }
 }
